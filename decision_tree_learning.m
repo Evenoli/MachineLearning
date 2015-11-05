@@ -1,4 +1,18 @@
 function [ decision_tree ] = decision_tree_learning( examples, attributes, binary_targets )
+    if (all(binary_targets == binary_targets(1)))
+        decision_tree.op = null;
+        decision_tree.kids = [];
+        decision_tree.class = binary_targets(1);
+    elseif (size(atttributes, 1) == 0)
+        decision_tree.op = null;
+        decision_tree.kids = [];
+        decision_tree.class = majority_value(binary_targets);
+    else
+        i = choose_best_decision_attribute(examples, attributes, binary_targets);
+        decision_tree.op = i;
+        
+    end
+
 %DECISION_TREE_LEARNING returns a decision tree for a given target label
 % if all examples have the same value of binary_targets
 % then return a leaf node with this value
