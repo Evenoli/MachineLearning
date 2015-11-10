@@ -1,51 +1,47 @@
-function [ decision_tree ] = decision_tree_learning( examples, attributes, binary_targets )
+function [ decision_tree ] = decision_tree_learning(examples, attributes, binary_targets)
+    num_examples = size(examples, 1);
+    decision_tree = struct('op', 'null', 'kids', {{struct(), struct()}}, 'class', 'null');
     if (all(binary_targets == binary_targets(1)))
-        decision_tree.op = null;
-        decision_tree.kids = [];
         decision_tree.class = binary_targets(1);
-    elseif (size(atttributes, 1) == 0)
-        decision_tree.op = null;
         decision_tree.kids = [];
+    elseif (isempty(attributes))
         decision_tree.class = majority_value(binary_targets);
+        decision_tree.kids = [];
     else
-        i = choose_best_decision_attribute(examples, attributes, binary_targets);
-        decision_tree.op = i;
+        best_attr = choose_best_decision_attribute(examples, attributes, binary_targets);
+        decision_tree.op = best_attr;
+        new_attributes = attributes(attributes~=best_attr);
+        examples_1 = []; examples_0 = [];
+        examples_1_i = 1; examples_0_i = 1;
+        b_targets_1 = []; b_targets_0 = [];
+        for i=1:num_examples;
+            if(examples(i, best_attr) == 1)
+                examples_1(examples_1_i, :) = examples(i, :);
+                b_targets_1(examples_1_i) = binary_targets(i);
+                examples_1_i = examples_1_i + 1;
+            else
+                examples_0(examples_0_i, :) = examples(i, :);
+                b_targets_0(examples_0_i) = binary_targets(i);
+                examples_0_i = examples_0_i + 1;
+            end
+        end
+        if(isempty(examples_0))
+            leaf = struct('op', 'null', 'kids', [], 'class', 'null');
+            leaf.class = majority_value(binary_targets);
+            left_node = leaf;
+        else
+            left_node = decision_tree_learning( examples_0, new_attributes, b_targets_0);
+        end
         
+        if(isempty(examples_1))
+            leaf = struct('op', 'null', 'kids', [], 'class', 'null');
+            leaf.class = majority_value(binary_targets);
+            right_node = leaf;
+        else
+            right_node = decision_tree_learning( examples_1, new_attributes, b_targets_1);
+        end
+        decision_tree.kids = {left_node, right_node};
     end
-
-%DECISION_TREE_LEARNING returns a decision tree for a given target label
-% if all examples have the same value of binary_targets
-% then return a leaf node with this value
-% else if attributes is empty
-% then return a leaf node with value = MAJORITY-VALUE(binary_targets)
-% else
-% best_attribute  CHOOSE-BEST-DECISION-ATTRIBUTE(examples,attributes, binary_targets)
-% tree  a new decision tree with root as best_attribute
-% for each possible value υi of best_attribute do (note that there are 2 values: 0 and 1)
-% add a branch to tree corresponding to best_attibute = υi
-% {examplesi , binary_targets i} {elements of examples with best_attribute = υi and the corresponding binary_targetsi }
-% if examplesi is empty
-% then return a leaf node with value = MAJORITY-VALUE(binary_targets)
-% else subtree  DECISION-TREE-LEARNING(examplesi ,attributes-{best_attribute}, binary_targetsi)
-% return tree
-
-%must return a MATLAB struct with fields:
-
-% tree.op: label for corresponding node (empty for leaf)
-
-% tree.kids: a cell array containing the subtrees that initiat from
-% corresponding node (resulting tree will be niary, the size of the cell
-% array must be 1 x 2 where entries contain left and right subtrees
-% respoectively) must be empty for leaf i.e tree.kids = []
-
-% tree.class: a label for the leaf node, possible values:
-%             0 - 1:the value of the examples (negative-positive, respectively) 
-%                   if it is the same for all examples, or with value as it is 
-%                   defined by the MAJORITY-VALUE function (in the case attributes is empty).
-
-%             it must be empty for an internal node since the tree returns
-%             a label only in the leaf node
-
 end
 
 function [ mode ] = majority_value( binary_targets )
@@ -67,10 +63,35 @@ function [ mode ] = majority_value( binary_targets )
     end
 end
 
+% Returns index of best attribute from 'attributes'
 function [ best_attribute ] = choose_best_decision_attribute(examples,attributes,binary_targets)
 %chooses the attribute that results in the thighest information gain
 %Gain(attribute) = I(p,n) - Remainder(attribute)
-    
+    cur_best_gain = 0;
+    num_attributes = size(attributes, 2);
+    best_att = attributes(1);
+    for i = 1:num_attributes;
+        cur_attr = attributes(i);
+        cur_gain = gain(examples, cur_attr, binary_targets);
+        if(cur_gain > cur_best_gain);
+            cur_best_gain = cur_gain;
+            best_att = cur_attr;
+        end
+    end
+    best_attribute = best_att;
+end
+
+function [ result ] = gain(examples, attribute, binary_targets)
+    p = 0;
+    n = 0;
+    for i=1:size(binary_targets, 1);
+        if(binary_targets(i));
+            p = p+1;
+        else
+            n = n+1;
+        end
+    end
+    result = I(p,n) - Remainder(examples, attribute, binary_targets);
 end
 
 %Returns entropy for p positive values and n negative values
@@ -81,28 +102,27 @@ function [ result ] = I(p,n)
     result = - pr*log2(pr) - nr*log2(nr); 
 end
 
-function [ result ] = Remainder(attribute, binary_targets)
+function [ result ] = Remainder(examples, attribute, binary_targets)
 %p0+n0/p+n . I(p0,n0) + p1+n1/p+n . I(p1,n1)
-    p0 = 0;
+    p0 = 0; 
     n0 = 0;
     p1 = 0;
     n1 = 0;
-    n = size(attribute, 1);
-    for i = 1:n
-        if (binary_targets(i) == 0)
-            if (attribute(i) == 1)
-                p0 = p0 + 1;
-            else 
-                n0 = n0 + 1;
+    n = size(examples, 1);
+    for i = 1:n;
+        if(examples(i,attribute));
+            if(binary_targets(i));
+                p1 = p1+1;
+            else
+                n1 = n1+1;
             end
         else
-            if (attribute(i) == 1)
-                p1 = p1 + 1;
+            if(binary_targets(i));
+                p0 = p0+1;
             else
-                n1 = n1 + 1;
+                n0 = n0+1;
             end
         end
     end
     result = (p0+n0/n) * I(p0, n0) + (p1+n1/n) * I(p1, n1);
-
 end
