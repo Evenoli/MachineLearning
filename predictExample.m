@@ -3,6 +3,8 @@ function [ prediction ] = predictExample( tree, ex )
 %corresponding to whether the example appears to match the emotion of the
 %given tree.
 
+%will return a 1x2 vector of prediction, num_nodes_visited
+
     if(tree.op == 'null');
         prediction = tree.class;
     else

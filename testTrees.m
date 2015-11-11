@@ -7,11 +7,12 @@
 
 function [ predictions ] = testTrees(T, x2)
 
-for i=1:size(x2)
+predictions = zeros(size(x2,1), 1);
+
+for i=1:size(x2, 1)
     accepted = [0,0,0,0,0,0];
-    predictions = zeros(size(x2), 1);
-    for j=1:size(T)
-        result = predictExample(T(j), x2(i));
+    for j=1:size(T, 2)
+        result = predictExample(T{j}, x2(i,:));
         if (result == 1)
             accepted(j) = 1;
         end
@@ -21,22 +22,12 @@ for i=1:size(x2)
             %chooses first emotion that it selected as true
             predictions(i) = k;
             break;
+        else 
+            %possibly temp hack...
+            predictions(i) = 1;
         end
     end
 end
-end
-
-function [ confusion_matrix ] = calculateConfusionMatrix(T, examples, labels)
-    confusion_matrix = zeros(6);
-    predictions = testTrees(T, examples);
-    if (size(predictions) ~= size(examples))
-        disp('amount of predictions and actuals dont match');
-    end
-    for i=1:size(predictions)
-        pred = predictions(i);
-        actual = labels(i);
-        confusion_matrix(actual, pred) = confusion_matrix(actual, pred) + 1;
-    end
 end
 
 function [ tp_tn_fp_fn ] = calculateMetrics(confusion_matrix, chosenClass)
