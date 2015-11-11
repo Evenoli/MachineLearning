@@ -84,8 +84,8 @@ end
 function [ result ] = gain(examples, attribute, binary_targets)
     p = 0;
     n = 0;
-    for i=1:size(binary_targets, 1);
-        if(binary_targets(i));
+    for i=1:size(examples, 1);
+        if(examples(i, attribute));
             p = p+1;
         else
             n = n+1;
@@ -99,30 +99,62 @@ function [ result ] = I(p,n)
 %I(p,n) = - p/(p+n).log2(p/(p+n)) - n/(p+n).log2(n/(p+n))
     pr = p / (p+n);
     nr = n / (p+n);
-    result = - pr*log2(pr) - nr*log2(nr); 
+    result = - pr*log2(pr) - nr*log2(nr);
 end
 
 function [ result ] = Remainder(examples, attribute, binary_targets)
-%p0+n0/p+n . I(p0,n0) + p1+n1/p+n . I(p1,n1)
-    p0 = 0; 
+    p0 = 0;
     n0 = 0;
     p1 = 0;
     n1 = 0;
-    n = size(examples, 1);
-    for i = 1:n;
-        if(examples(i,attribute));
-            if(binary_targets(i));
+    for i = 1:size(binary_targets, 1);
+        if(binary_targets(i, 1));
+            if(examples(i, attribute));
                 p1 = p1+1;
             else
-                n1 = n1+1;
+                p0 = p0+1;
             end
         else
-            if(binary_targets(i));
-                p0 = p0+1;
+            if(examples(i, attribute));
+                n1 = p1+1;
             else
                 n0 = n0+1;
             end
         end
     end
-    result = (p0+n0/n) * I(p0, n0) + (p1+n1/n) * I(p1, n1);
+    
+    result = Rem(p0, n0, p1, n1);
 end
+
+function [ result ] = Rem(p0, n0, p1, n1)
+    t = p0 + p1 + n0 + n1;
+    result = (p0+n0)/t * I(p0, n0) + (p1+n1)/t * I(p1, n1); 
+end
+
+% function [ result ] = Remainder(examples, attribute, binary_targets)
+% %p0+n0/p+n . I(p0,n0) + p1+n1/p+n . I(p1,n1)
+%     p0 = 0; 
+%     n0 = 0;
+%     p1 = 0;
+%     n1 = 0;
+%     n = size(examples, 1);
+%     for i = 1:n;
+%         if(examples(i,attribute));
+%             if(binary_targets(i));
+%                 p1 = p1+1;
+%             else
+%                 n1 = n1+1;
+%             end
+%         else
+%             if(binary_targets(i));
+%                 p0 = p0+1;
+%             else
+%                 n0 = n0+1;
+%             end
+%         end
+%     end
+%     if(p1+n1 == 0);
+%         disp(num2str(n1+p1));
+%     end
+%     result = (p0+n0/n) * I(p0, n0) + (p1+n1/n) * I(p1, n1);
+% end
