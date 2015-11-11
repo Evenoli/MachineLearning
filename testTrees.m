@@ -1,11 +1,86 @@
-function [ predictions ] = testTrees(T, x2)
+
 %TESTTREES takes your trained trees (all six) T and the features x2 and produces
 %a vector of label predictions. Both x2 and predictions should be in the same 
 %format as x, y provided to you. Think how you will combine the six trees to get 
 %a single output for a given input sample. Try at least 2 different ways of 
 %combining the six trees.
 
+function [ predictions ] = testTrees(T, x2)
 
+for i=1:size(x2)
+    accepted = [0,0,0,0,0,0];
+    predictions = zeros(size(x2), 1);
+    for j=1:size(T)
+        result = predictExample(T(j), x2(i));
+        if (result == 1)
+            accepted(j) = 1;
+        end
+    end
+    for k=1:6
+        if (accepted(k)== 1)
+            %chooses first emotion that it selected as true
+            predictions(i) = k;
+            break;
+        end
+    end
+end
+end
+
+function [ confusion_matrix ] = calculateConfusionMatrix(T, examples, labels)
+    confusion_matrix = zeros(6);
+    predictions = testTrees(T, examples);
+    if (size(predictions) ~= size(examples))
+        disp('amount of predictions and actuals dont match');
+    end
+    for i=1:size(predictions)
+        pred = predictions(i);
+        actual = labels(i);
+        confusion_matrix(actual, pred) = confusion_matrix(actual, pred) + 1;
+    end
+end
+
+function [ tp_tn_fp_fn ] = calculateMetrics(confusion_matrix, chosenClass)
+    tp_tn_fp_fn = [0,0,0,0];
+    for i=1:6
+        for j=1:6
+            if(j == chosenClass && i == j)
+                tp_tn_fp_fn(1) = confusion_matrix(i,j);
+            end
+            if(j == chosenClass && i ~= j)
+                tp_tn_fp_fn(3) = tp_tn_fp_fn(3) + confusion_matrix(i, j);
+            end
+            if(i == chosenClass && i ~= j)
+                tp_tn_fp_fn(4) = tp_tn_fp_fn(4) + confusion_matrix(i, j);
+            end
+            if(i ~= chosenClass && j ~= chosenClass)
+                tp_tn_fp_fn(2) = tp_tn_fp_fn(2) + confusion_matrix(i, j);
+            end
+        end
+    end
+end
+
+function [ recall ] = calculateRecall( tp_tn_fp_fn )
+    tp = tp_tn_fp_fn(1);
+    fn = tp_tn_fp_fn(4);
+    recall = tp/(tp+fn);
+end
+
+function [ precision ] = calculatePrecision( tp_tn_fp_fn )
+    tp = tp_tn_fp_fn(1);
+    fp = tp_tn_fp_fn(3);
+    precision = tp/(tp+fp);
+end
+
+function [ f1_measure ] = calculateF1Measure( recall, precision )
+    f1_measure = 2 * ((precision * recall) / (precistion + recall));
+end
+
+function [ avg_classification_rate ] = calculateAvgClassificationRate( tp_tn_fp_fn )
+    tp = tp_tn_fp_fn(1);
+    tn = tp_tn_fp_fn(2);
+    fp = tp_tn_fp_fn(3);
+    fn = tp_tn_fp_fn(4);
+    avg_classification_rate = (tp + tn)/(tp+tn+fp+fn);
 end
 
 
