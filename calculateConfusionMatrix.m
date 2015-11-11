@@ -1,6 +1,7 @@
 function [ confusion_matrix ] = calculateConfusionMatrix(T, examples, labels)
     confusion_matrix = zeros(6);
-    predictions = testTrees(T, examples);
+    predictions = testTreesAlt(T, examples);
+    %predictions = testTrees(T, examples);
     if (size(predictions) ~= size(examples))
         disp('amount of predictions and actuals dont match');
     end

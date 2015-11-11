@@ -11,20 +11,23 @@ predictions = zeros(size(x2,1), 1);
 
 for i=1:size(x2, 1)
     accepted = [0,0,0,0,0,0];
+    acceptedIndex = [];
     for j=1:size(T, 2)
         result = predictExample(T{j}, x2(i,:));
         if (result == 1)
             accepted(j) = 1;
+            acceptedIndex(end+1)=j;
         end
     end
     for k=1:6
         if (accepted(k)== 1)
-            %chooses first emotion that it selected as true
-            predictions(i) = k;
+            
+            %chooses random emotion that it selected as true
+            predictions(i) = k;%acceptedIndex(floor(rand*size(acceptedIndex)));
             break;
         else 
             %possibly temp hack...
-            predictions(i) = 1;
+            predictions(i) = floor(rand*6);
         end
     end
 end
