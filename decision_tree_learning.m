@@ -17,11 +17,11 @@ function [ decision_tree ] = decision_tree_learning(examples, attributes, binary
         for i=1:num_examples;
             if(examples(i, best_attr) == 1)
                 examples_1(examples_1_i, :) = examples(i, :);
-                b_targets_1(examples_1_i) = binary_targets(i);
+                b_targets_1 =[b_targets_1; binary_targets(i)];
                 examples_1_i = examples_1_i + 1;
             else
                 examples_0(examples_0_i, :) = examples(i, :);
-                b_targets_0(examples_0_i) = binary_targets(i);
+                b_targets_0 =[b_targets_0; binary_targets(i)];
                 examples_0_i = examples_0_i + 1;
             end
         end
@@ -107,7 +107,8 @@ function [ result ] = Remainder(examples, attribute, binary_targets)
     n0 = 0;
     p1 = 0;
     n1 = 0;
-    for i = 1:size(binary_targets, 1);
+    num_bts = size(binary_targets, 1);
+    for i = 1:num_bts;
         if(binary_targets(i, 1));
             if(examples(i, attribute));
                 p1 = p1+1;
@@ -122,7 +123,6 @@ function [ result ] = Remainder(examples, attribute, binary_targets)
             end
         end
     end
-    
     result = Rem(p0, n0, p1, n1);
 end
 
@@ -130,31 +130,3 @@ function [ result ] = Rem(p0, n0, p1, n1)
     t = p0 + p1 + n0 + n1;
     result = (p0+n0)/t * I(p0, n0) + (p1+n1)/t * I(p1, n1); 
 end
-
-% function [ result ] = Remainder(examples, attribute, binary_targets)
-% %p0+n0/p+n . I(p0,n0) + p1+n1/p+n . I(p1,n1)
-%     p0 = 0; 
-%     n0 = 0;
-%     p1 = 0;
-%     n1 = 0;
-%     n = size(examples, 1);
-%     for i = 1:n;
-%         if(examples(i,attribute));
-%             if(binary_targets(i));
-%                 p1 = p1+1;
-%             else
-%                 n1 = n1+1;
-%             end
-%         else
-%             if(binary_targets(i));
-%                 p0 = p0+1;
-%             else
-%                 n0 = n0+1;
-%             end
-%         end
-%     end
-%     if(p1+n1 == 0);
-%         disp(num2str(n1+p1));
-%     end
-%     result = (p0+n0/n) * I(p0, n0) + (p1+n1/n) * I(p1, n1);
-% end
