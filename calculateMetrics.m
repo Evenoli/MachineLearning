@@ -2,7 +2,8 @@ function [ metrics ] = calculateMetrics(confusion_matrix, chosenClass)
 %Return a struct containing the metrics for the given confusion matrix and 
 %the given class
 
-    metrics = struct('Recall', 'null', 'Precision', 'null','AvgClassificationRate', 'null', 'F1', 'null');
+    emo = emolab2str(chosenClass);
+    metrics = struct('Class', emo, 'Recall', 'null', 'Precision', 'null','AvgClassificationRate', 'null', 'F1', 'null');
 
     tp_tn_fp_fn = [0,0,0,0];
     for i=1:6

@@ -1,11 +1,11 @@
-function [ confusion_matrix, avg_metrics ] = CrossValidate( x, y )
-% Given examples (x) and labels (y) will return a confusion matrix and a
-% struct containing metrics information taken from the average results
-% accross the given data.
+function [ confusion_matrix, class_metrics, acr ] = CrossValidate( x, y )
+% Given examples (x) and labels (y) will return a confusion matrix, and
+% array of structs containing metrics for each class, and the average
+% classification rate accross the final confusion matrix (acr).
 
     CROSS_VALIDATION_NUM = 10;
     
-    con_matricies = cell(6, 1);
+    con_matricies = cell(CROSS_VALIDATION_NUM, 1);
     num_examples = size(x, 1);
     base_fold_size = floor(num_examples/CROSS_VALIDATION_NUM);
     
@@ -24,8 +24,59 @@ function [ confusion_matrix, avg_metrics ] = CrossValidate( x, y )
     fold_start = 1;
     for j = 1:CROSS_VALIDATION_NUM
         fold_end = fold_start + fold_sizes(j);
-        
-    end
+        if(fold_end > num_examples);
+            fold_end = num_examples;
+        end
 
+        %Test/validation examples
+        testx = x(fold_start:fold_end, :);
+        valx_2 = x(fold_end+1:num_examples, :);
+        
+        %Test/validation Labels
+        testy = y(fold_start:fold_end, :);
+        valy_2 = y(fold_end+1:num_examples, :);
+        
+        if(j == 1);
+            validationx = valx_2;
+            validationy = valy_2;
+        elseif(j == CROSS_VALIDATION_NUM);
+            validationx = x(1:fold_start-1, :);
+            validationy = y(1:fold_start-1, :);
+        else
+            valx_1 = x(1:fold_start-1, :);
+            validationx = vertcat(valx_1, valx_2);
+            valy_1 = y(1:fold_start-1, :);
+            validationy = vertcat(valy_1, valy_2);
+        end
+        
+        Trees = createTrees(validationx, validationy);
+        con_matricies{j} = calculateConfusionMatrix(Trees, testx, testy);
+        
+        fold_start = fold_end+1;
+    end
+    
+    %Sum upp confusion matrices
+    con_matrix_total = zeros(6);
+    for k = 1:CROSS_VALIDATION_NUM
+        con_matrix_total = con_matrix_total + con_matricies{k};
+    end
+%     confusion_matrix = con_matrix_total/CROSS_VALIDATION_NUM;
+    confusion_matrix = con_matrix_total;
+    
+    %Get metrics per class
+    
+    for j = 1:6;
+        class_metrics(j) = calculateMetrics(confusion_matrix, j);
+    end
+    
+    %Calculate Average Classification Rate
+    sum_diag = 0;
+    for k = 1:6;
+        sum_diag = sum_diag + confusion_matrix(k, k);
+    end
+    
+    sum_total = sum(sum(confusion_matrix));
+    acr = sum_diag/sum_total;
+    
 end
 

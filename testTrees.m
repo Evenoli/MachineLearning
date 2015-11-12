@@ -27,7 +27,7 @@ for i=1:size(x2, 1)
             break;
         else 
             %possibly temp hack...
-            predictions(i) = floor(rand*6);
+            predictions(i) = floor(rand*6)+1;
         end
     end
 end
