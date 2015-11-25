@@ -1,4 +1,4 @@
-function [ net, tr, bleh ] = traingdaNet( inputs, targets, lRate, lr_inc, lr_dec, epochs )
+function [ net, tr ] = traingdaNet( inputs, targets, lRate, lr_inc, lr_dec, epochs )
     
     net = feedforwardnet(layers, 'traingda');
     net = configure(net, inputs, targets);

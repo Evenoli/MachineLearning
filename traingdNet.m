@@ -8,6 +8,7 @@ function [ net, tr ] = traingdNet(layers, inputs, targets, lRate, epochs)
     net.trainParam.epochs = epochs;
     net.trainParam.lr = lRate;
     
+    %division
     net.divideFcn = 'divideblock';
     net.divideParam.trainRatio = 0.8;
     net.divideParam.testRatio = 0.1;
