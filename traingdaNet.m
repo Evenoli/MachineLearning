@@ -10,6 +10,15 @@ function [ net, tr ] = traingdaNet( inputs, targets, lRate, lr_inc, lr_dec, epoc
     net.trainParam.lr_inc = lr_inc;
     net.trainParam.lr_dec = lr_dec;
     
+    %set outlayers activation function to tansig or 'logsig'
+    net.layers{size(layers) + 1}.transferFcn = 'tansig';
+    
+    %division
+    net.divideFcn = 'divideind';
+    net.divideParam.trainInd = 1;
+    net.divideParam.valInd = [];
+    net.divideParam.testInd = [];
+    
 
     %net.trainParam.epochs = epochs;
     [net, tr] = train(net, inputs, targets);

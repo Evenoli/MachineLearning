@@ -8,6 +8,15 @@ function [ net, tr ] = traingdmNet( inputs, targets,lRate, momentum, epochs )
     net.trainParam.epochs = epochs;
     net.trainParam.lr = lRate;
     net.trainParam.mc = momentum;
+    
+    %set outlayers activation function to tansig or 'logsig'
+    net.layers{size(layers) + 1}.transferFcn = 'tansig';
+    
+    %division
+    net.divideFcn = 'divideind';
+    net.divideParam.trainInd = 1;
+    net.divideParam.valInd = [];
+    net.divideParam.testInd = [];
 
     %net.trainParam.epochs = epochs;
     [net, tr] = train(net, inputs, targets);

@@ -9,11 +9,14 @@ function [ net, tr ] = trainrpNet( inputs, targets, delt_inc, delt_dec, epochs )
     net.trainParam.delt_inc = delt_inc;
     net.trainParam.delt_dec = delt_dec;
     
+    %set outlayers activation function to tansig or 'logsig'
+    net.layers{size(layers) + 1}.transferFcn = 'tansig';
+    
     %division
-    net.divideFcn = 'divideblock';
-    net.divideParam.trainRatio = 0.8;
-    net.divideParam.testRatio = 0.1;
-    net.divideParam.valRatio = 0.1;
+    net.divideFcn = 'divideind';
+    net.divideParam.trainInd = 1;
+    net.divideParam.valInd = [];
+    net.divideParam.testInd = [];
 
     %net.trainParam.epochs = epochs;
     [net, tr] = train(net, inputs, targets);
