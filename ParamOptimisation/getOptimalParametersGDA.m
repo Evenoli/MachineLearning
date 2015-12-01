@@ -12,7 +12,7 @@ for i=1:num_res
         cell = results(j);
         list = cell{1};
         res_struct = list{i};
-        uar = res_struct.Avergae_Recall;
+        uar = res_struct.Average_Recall;
         total_perf = total_perf + uar;
     end
     
@@ -24,6 +24,7 @@ for i=1:num_res
         l = res_struct.num_layers;
         inc = res_struct.lr_inc;
         dec = res_struct.lr_dec;
+    average_results{i}.training_func = 'GDA';
     average_results{i}.performance = total_perf / 10;
     average_results{i}.lRate = lr;
     average_results{i}.neurons = n;

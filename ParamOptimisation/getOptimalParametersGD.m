@@ -6,13 +6,14 @@ average_results = [];
 cell = results(1);
 inner = cell{1};
 num_res = size(inner, 2);
+num_folds = size(results, 2);
 for i=1:num_res
     total_perf = 0;
-    for j=1:10
+    for j=1:num_folds
         cell = results(j);
         list = cell{1};
         res_struct = list{i};
-        uar = res_struct.Avergae_Recall;
+        uar = res_struct.Average_Recall;
         total_perf = total_perf + uar;
     end
     
@@ -22,8 +23,9 @@ for i=1:num_res
         lr = res_struct.learning_rate;
         n = res_struct.neurons_per_layer;
         l = res_struct.num_layers;
-    average_results{i}.performance = total_perf / 10;
-    disp(total_perf/10);
+    average_results{i}.training_func = 'GD';
+    average_results{i}.performance = total_perf / num_folds;
+    disp(total_perf/num_folds);
     average_results{i}.lRate = lr;
     average_results{i}.neurons = n;
     average_results{i}.layers = l;
