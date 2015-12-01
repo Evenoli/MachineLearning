@@ -13,7 +13,7 @@ for i=1:num_res
         list = cell{1};
         res_struct = list{i};
         perf = res_struct.performance;
-        uar = perf(1);
+        uar = perf(3);
         total_perf = total_perf + uar;
     end
     
