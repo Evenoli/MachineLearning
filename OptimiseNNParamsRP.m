@@ -1,4 +1,4 @@
-function [ opti_params ] = OptimiseNNParamsGD()
+function [ opti_params ] = OptimiseNNParamsRP()
 %This function re-uses a lot of code from our 'decision tree' cross
 %validation method, and hence splits the train/validation data in the same
 %way as it did when testing our decision trees.
@@ -67,7 +67,8 @@ function [ opti_params ] = OptimiseNNParamsGD()
         neurons_per_layer = [10:10:90];
         
         %Parameter ranges
-        learningRate = [0.01:0.01:0.1];
+        delt_increase = [1:0.1:1.5];
+        delt_decrease =[0.3:0.1:0.9];
         
         perFoldRes = [];
         resCounter = 1;
@@ -78,9 +79,10 @@ function [ opti_params ] = OptimiseNNParamsGD()
                 for k = 1:l
                     top(k) = n;
                 end
-                for lr = learningRate
-                    %Train net using given params
-                    [ net, tr ] = traingdNet(top, x2, y2, lr, N_EPOCHS);
+                    for delt_inc = delt_increase
+                        for delt_dec = delt_decrease
+                            %Train net using given params
+                    [ net, tr ] = trainrpNet(top, x2, y2, delt_inc, delt_dec, N_EPOCHS);
                     %Get predictions from validation data
                     predictions = testANN(net, validationx);
                     %Create confusion matrix from predictions
@@ -95,11 +97,14 @@ function [ opti_params ] = OptimiseNNParamsGD()
                     perFoldRes{resCounter} = struct('fold', j, ...
                                                     'num_layers', l, ...
                                                     'neurons_per_layer', n, ...
-                                                    'learning_rate', lr, ...
+                                                    'delt_inc', delt_inc, ...
+                                                    'delt_dec', delt_dec, ...
                                                     'performance', perf);
                     disp(perFoldRes{resCounter});
                     resCounter = resCounter + 1;
-                end
+                            
+                        end
+                    end
             end
         end
         
@@ -109,4 +114,5 @@ function [ opti_params ] = OptimiseNNParamsGD()
 
     opti_params = Results;
 end
+
 

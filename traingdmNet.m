@@ -1,4 +1,4 @@
-function [ net, tr ] = traingdmNet( inputs, targets,lRate, momentum, epochs )
+function [ net, tr ] = traingdmNet(layers, inputs, targets,lRate, momentum, epochs )
     
  
     net = feedforwardnet(layers, 'traingdm');

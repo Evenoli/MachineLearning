@@ -1,4 +1,4 @@
-function [ net, tr ] = trainrpNet( inputs, targets, delt_inc, delt_dec, epochs )
+function [ net, tr ] = trainrpNet(layers, inputs, targets, delt_inc, delt_dec, epochs )
     
     net = feedforwardnet(layers, 'trainrp');
     net = configure(net, inputs, targets);
@@ -9,7 +9,7 @@ function [ net, tr ] = trainrpNet( inputs, targets, delt_inc, delt_dec, epochs )
     net.trainParam.delt_inc = delt_inc;
     net.trainParam.delt_dec = delt_dec;
     
-    net.trainParam.showWindow=0;
+    net.trainParam.showWindow=1;
     
     %set outlayers activation function to tansig or 'logsig'
     net.layers{size(layers) + 1}.transferFcn = 'tansig';
