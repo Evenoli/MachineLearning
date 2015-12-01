@@ -12,8 +12,7 @@ for i=1:num_res
         cell = results(j);
         list = cell{1};
         res_struct = list{i};
-        perf = res_struct.performance;
-        uar = perf(3);
+        uar = res_struct.Avergae_Recall;
         total_perf = total_perf + uar;
     end
     

@@ -17,7 +17,6 @@ function [ Results, opti_params ] = OptimiseNNParamsGDM()
     CROSS_VALIDATION_NUM = 10;
     N_EPOCHS = 100;
     
-    con_matricies = cell(CROSS_VALIDATION_NUM, 1);
     num_examples = size(x2, 2);
     base_fold_size = floor(num_examples/CROSS_VALIDATION_NUM);
     
@@ -55,10 +54,10 @@ function [ Results, opti_params ] = OptimiseNNParamsGDM()
             trainx = x2(:, 1:fold_start-1);
             trainy = y2(:, 1:fold_start-1);
         else
-            valx_1 = x2(:, 1:fold_start-1);
-            trainx = horzcat(valx_1, trainx_2);
-            valy_1 = y2(:, 1:fold_start-1);
-            trainy = horzcat(valy_1, trainy_2);
+            trainx_1 = x2(:, 1:fold_start-1);
+            trainx = horzcat(trainx_1, trainx_2);
+            trainy_1 = y2(:, 1:fold_start-1);
+            trainy = horzcat(trainy_1, trainy_2);
         end
         
         %TRAIN AND TEST
@@ -70,46 +69,9 @@ function [ Results, opti_params ] = OptimiseNNParamsGDM()
         learningRate = [0.01:0.01:0.1];
         momentum = [0.1:0.1:1];
         
-        perFoldRes = [];
-        resCounter = 1;
+        Results{j} = OptimiseGDMHelper(j, trainx, trainy, validationx, validationy,...
+            num_layers, neurons_per_layer, learningRate, momentum, N_EPOCHS );
         
-        for l = num_layers
-            for n = neurons_per_layer
-                top = [];
-                for k = 1:l
-                    top(k) = n;
-                end
-                for lr = learningRate
-                    for mom = momentum
-                            %Train net using given params
-                    [ net, tr ] = traingdmNet(top, x2, y2, lr, mom, N_EPOCHS);
-                    %Get predictions from validation data
-                    predictions = testANN(net, validationx);
-                    %Create confusion matrix from predictions
-                    labels = NNout2labels(validationy);                    
-                    conf_matrix = confusionMatrixNN(predictions, labels);
-                    %Get a struct of performance metrics from conf_matrix
-                    metrics = calculateAvgMetrics(conf_matrix);
-                    %Take chosen performance metric
-                    perf = [metrics.AvgClassificationRate, metrics.F1, metrics.Recall];
-                    
-                    %Add results to per-fold vector
-                    perFoldRes{resCounter} = struct('fold', j, ...
-                                                    'num_layers', l, ...
-                                                    'neurons_per_layer', n, ...
-                                                    'learning_rate', lr, ...
-                                                    'momentum', mom, ...
-                                                    'performance', perf);
-                    disp(perFoldRes{resCounter});
-                    resCounter = resCounter + 1;
-                            
-                    end
-                   
-                end
-            end
-        end
-        
-        Results{j} = perFoldRes;
         fold_start = fold_end+1;
     end
 
