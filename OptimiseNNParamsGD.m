@@ -1,4 +1,4 @@
-function [ opti_params ] = OptimiseNNParamsGD()
+function [ Results, opti_params ] = OptimiseNNParamsGD()
 %This function re-uses a lot of code from our 'decision tree' cross
 %validation method, and hence splits the train/validation data in the same
 %way as it did when testing our decision trees.
@@ -15,7 +15,7 @@ function [ opti_params ] = OptimiseNNParamsGD()
     [x2, y2] = ANNdata(x, y);
 
     CROSS_VALIDATION_NUM = 10;
-    N_EPOCHS = 100;
+    N_EPOCHS = 10;
     
     con_matricies = cell(CROSS_VALIDATION_NUM, 1);
     num_examples = size(x2, 2);
@@ -107,6 +107,6 @@ function [ opti_params ] = OptimiseNNParamsGD()
         fold_start = fold_end+1;
     end
 
-    opti_params = Results;
+    opti_params = getOptimalParametersGD(Results);
 end
 
