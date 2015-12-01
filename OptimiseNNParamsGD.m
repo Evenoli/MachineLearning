@@ -15,7 +15,7 @@ function [ opti_params ] = OptimiseNNParamsGD()
     [x2, y2] = ANNdata(x, y);
 
     CROSS_VALIDATION_NUM = 10;
-    N_EPOCHS = 1000;
+    N_EPOCHS = 100;
     
     con_matricies = cell(CROSS_VALIDATION_NUM, 1);
     num_examples = size(x2, 2);
@@ -89,7 +89,7 @@ function [ opti_params ] = OptimiseNNParamsGD()
                     %Get a struct of performance metrics from conf_matrix
                     metrics = calculateAvgMetrics(conf_matrix);
                     %Take chosen performance metric
-                    perf = [metrics.AvgClassificationRate, metrics.F1];
+                    perf = [metrics.AvgClassificationRate, metrics.F1, metrics.Recall];
                     
                     %Add results to per-fold vector
                     perFoldRes{resCounter} = struct('fold', j, ...
