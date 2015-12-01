@@ -1,5 +1,5 @@
 function [ net, tr ] = traingdNet(layers, inputs, targets, lRate, epochs)
-    
+    %RandStream.setGlobalStream(RandStream('mt19937ar','seed',1));
     net = feedforwardnet(layers, 'traingd');
     net = configure(net, inputs, targets);
     
@@ -13,14 +13,14 @@ function [ net, tr ] = traingdNet(layers, inputs, targets, lRate, epochs)
     net.layers{size(layers) + 1}.transferFcn = 'tansig';
     
     %division
-    net.divideFcn = 'divideind';
-    net.divideParam.trainInd = 1;
-    net.divideParam.valInd = [];
-    net.divideParam.testInd = [];
+    net.divideFcn = 'divideint';
+    net.divideParam.trainRatio = 0.9;
+    net.divideParam.valRatio = 0.1;
+    net.divideParam.testRatio = 0;
 
     %net.trainParam.epochs = epochs;
     [net, tr] = train(net, inputs, targets);
-%     best_perf  = tr.best_perf;
+     %best_perf  = tr.best_perf;
     
 %     disp('using: ');
 %     disp(tr.trainFcn);
@@ -33,7 +33,7 @@ function [ net, tr ] = traingdNet(layers, inputs, targets, lRate, epochs)
 %     disp(lRate);
 %     
 %     disp('Best performance: ');
-%     disp(best_perf);
+     %disp(best_perf);
     
     %results = sim(net, inputs);
     %predictions = NNout2labels(results);

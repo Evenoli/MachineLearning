@@ -1,4 +1,4 @@
-function [ opti_params ] = OptimiseNNParamsGD( x, y )
+function [ opti_params ] = OptimiseNNParamsGD()
 %This function re-uses a lot of code from our 'decision tree' cross
 %validation method, and hence splits the train/validation data in the same
 %way as it did when testing our decision trees.
@@ -15,7 +15,7 @@ function [ opti_params ] = OptimiseNNParamsGD( x, y )
     [x2, y2] = ANNdata(x, y);
 
     CROSS_VALIDATION_NUM = 10;
-    N_EPOCHS = 100;
+    N_EPOCHS = 1000;
     
     con_matricies = cell(CROSS_VALIDATION_NUM, 1);
     num_examples = size(x2, 2);
@@ -57,7 +57,7 @@ function [ opti_params ] = OptimiseNNParamsGD( x, y )
         else
             valx_1 = x2(:, 1:fold_start-1);
             trainx = horzcat(valx_1, trainx_2);
-            valy_1 = y(:, 1:fold_start-1);
+            valy_1 = y2(:, 1:fold_start-1);
             trainy = horzcat(valy_1, trainy_2);
         end
         
@@ -84,23 +84,26 @@ function [ opti_params ] = OptimiseNNParamsGD( x, y )
                     %Get predictions from validation data
                     predictions = testANN(net, validationx);
                     %Create confusion matrix from predictions
-                    conf_matrix = confusionMatrixNN(predictions, validationy);
+                    labels = NNout2labels(validationy);                    
+                    conf_matrix = confusionMatrixNN(predictions, labels);
                     %Get a struct of performance metrics from conf_matrix
-                    metrics = calculateMetrics(conf_matrix);
+                    metrics = calculateAvgMetrics(conf_matrix);
                     %Take chosen performance metric
                     perf = [metrics.AvgClassificationRate, metrics.F1];
                     
                     %Add results to per-fold vector
-                    perFoldRes(resCounter) = struct('num_layers', l, ...
+                    perFoldRes{resCounter} = struct('fold', j, ...
+                                                    'num_layers', l, ...
                                                     'neurons_per_layer', n, ...
                                                     'learning_rate', lr, ...
                                                     'performance', perf);
+                    disp(perFoldRes{resCounter});
                     resCounter = resCounter + 1;
                 end
             end
         end
         
-        Results(j) = perFoldRes;
+        Results{j} = perFoldRes;
         fold_start = fold_end+1;
     end
 
