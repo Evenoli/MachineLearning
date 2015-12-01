@@ -24,6 +24,7 @@ for i=1:num_res
         n = res_struct.neurons_per_layer;
         l = res_struct.num_layers;
     average_results{i}.performance = total_perf / 10;
+    disp(total_perf/10);
     average_results{i}.lRate = lr;
     average_results{i}.neurons = n;
     average_results{i}.layers = l;
@@ -33,6 +34,7 @@ for i=1:num_res
     perf = average_results{i}.performance;
     if (perf > best_perf)
         opti_params = average_results{i};
+        best_perf = perf;
     end
 end
 
