@@ -1,4 +1,4 @@
-function [ opti_params ] = OptimiseNNParamsGDA()
+function [ opti_params ] = OptimiseNNParamsRP()
 %This function re-uses a lot of code from our 'decision tree' cross
 %validation method, and hence splits the train/validation data in the same
 %way as it did when testing our decision trees.
@@ -67,9 +67,8 @@ function [ opti_params ] = OptimiseNNParamsGDA()
         neurons_per_layer = [10:10:90];
         
         %Parameter ranges
-        learningRate = [0.01:0.01:0.1];
-        lr_increase = [1.05:0.05:1.2];
-        lr_decrease =[0.6:0.1:0.9];
+        delt_increase = [1:0.1:1.5];
+        delt_decrease =[0.3:0.1:0.9];
         
         perFoldRes = [];
         resCounter = 1;
@@ -80,11 +79,10 @@ function [ opti_params ] = OptimiseNNParamsGDA()
                 for k = 1:l
                     top(k) = n;
                 end
-                for lr = learningRate
-                    for lr_inc = lr_increase
-                        for lr_dec = lr_decrease
+                    for delt_inc = delt_increase
+                        for delt_dec = delt_decrease
                             %Train net using given params
-                    [ net, tr ] = traingdaNet(top, x2, y2, lr, lr_inc, lr_dec, N_EPOCHS);
+                    [ net, tr ] = trainrpNet(top, x2, y2, delt_inc, delt_dec, N_EPOCHS);
                     %Get predictions from validation data
                     predictions = testANN(net, validationx);
                     %Create confusion matrix from predictions
@@ -99,17 +97,14 @@ function [ opti_params ] = OptimiseNNParamsGDA()
                     perFoldRes{resCounter} = struct('fold', j, ...
                                                     'num_layers', l, ...
                                                     'neurons_per_layer', n, ...
-                                                    'learning_rate', lr, ...
-                                                    'lr_inc', lr_inc, ...
-                                                    'lr_dec', lr_dec, ...
+                                                    'delt_inc', delt_inc, ...
+                                                    'delt_dec', delt_dec, ...
                                                     'performance', perf);
                     disp(perFoldRes{resCounter});
                     resCounter = resCounter + 1;
                             
                         end
                     end
-                   
-                end
             end
         end
         
