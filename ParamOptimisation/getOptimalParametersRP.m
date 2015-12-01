@@ -34,7 +34,7 @@ for i=1:num_res
 end
 
 for i=1:num_res
-    perf = average_results{i}.performance(3);
+    perf = average_results{i}.performance;
     if (perf > best_perf)
         opti_params = average_results{i};
     end
