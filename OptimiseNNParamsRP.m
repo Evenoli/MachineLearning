@@ -1,4 +1,4 @@
-function [ opti_params ] = OptimiseNNParamsRP()
+function [ Results, opti_params ] = OptimiseNNParamsRP()
 %This function re-uses a lot of code from our 'decision tree' cross
 %validation method, and hence splits the train/validation data in the same
 %way as it did when testing our decision trees.
@@ -111,8 +111,7 @@ function [ opti_params ] = OptimiseNNParamsRP()
         Results{j} = perFoldRes;
         fold_start = fold_end+1;
     end
-
-    opti_params = Results;
+    opti_params = getOptimalParametersRP(Results);
 end
 
 

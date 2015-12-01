@@ -9,7 +9,7 @@ function [ net, tr ] = trainrpNet(layers, inputs, targets, delt_inc, delt_dec, e
     net.trainParam.delt_inc = delt_inc;
     net.trainParam.delt_dec = delt_dec;
     
-    net.trainParam.showWindow=1;
+    net.trainParam.showWindow=0;
     
     %set outlayers activation function to tansig or 'logsig'
     net.layers{size(layers) + 1}.transferFcn = 'tansig';

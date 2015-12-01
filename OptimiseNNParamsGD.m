@@ -1,4 +1,4 @@
-function [ opti_params ] = OptimiseNNParamsGD()
+function [ Results, opti_params ] = OptimiseNNParamsGD()
 %This function re-uses a lot of code from our 'decision tree' cross
 %validation method, and hence splits the train/validation data in the same
 %way as it did when testing our decision trees.
@@ -107,6 +107,6 @@ function [ opti_params ] = OptimiseNNParamsGD()
         fold_start = fold_end+1;
     end
 
-    opti_params = Results;
+    opti_params = getOptimalParametersGD(Results);
 end
 
