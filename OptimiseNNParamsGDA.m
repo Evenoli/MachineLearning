@@ -93,7 +93,7 @@ function [ opti_params ] = OptimiseNNParamsGDA()
                     %Get a struct of performance metrics from conf_matrix
                     metrics = calculateAvgMetrics(conf_matrix);
                     %Take chosen performance metric
-                    perf = [metrics.AvgClassificationRate, metrics.F1];
+                    perf = [metrics.AvgClassificationRate, metrics.F1, metrics.Recall];
                     
                     %Add results to per-fold vector
                     perFoldRes{resCounter} = struct('fold', j, ...
