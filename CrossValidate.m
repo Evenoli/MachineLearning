@@ -1,4 +1,4 @@
-function [ confusion_matrix, class_metrics, acr ] = CrossValidate( x, y )
+function [ confusion_matrix, class_metrics, acr, acerr_per_fold ] = CrossValidate( x, y )
 % Given examples (x) and labels (y) will return a confusion matrix, and
 % array of structs containing metrics for each class, and the average
 % classification rate accross the final confusion matrix (acr).
@@ -6,6 +6,7 @@ function [ confusion_matrix, class_metrics, acr ] = CrossValidate( x, y )
     CROSS_VALIDATION_NUM = 10;
     
     con_matricies = cell(CROSS_VALIDATION_NUM, 1);
+    acerr_per_fold = zeros(1, CROSS_VALIDATION_NUM);
     num_examples = size(x, 1);
     base_fold_size = floor(num_examples/CROSS_VALIDATION_NUM);
     
@@ -23,6 +24,8 @@ function [ confusion_matrix, class_metrics, acr ] = CrossValidate( x, y )
     
     fold_start = 1;
     for j = 1:CROSS_VALIDATION_NUM
+        disp(j);
+        
         fold_end = fold_start + fold_sizes(j);
         if(fold_end > num_examples);
             fold_end = num_examples;
@@ -51,7 +54,8 @@ function [ confusion_matrix, class_metrics, acr ] = CrossValidate( x, y )
         
         Trees = createTrees(validationx, validationy);
         con_matricies{j} = calculateConfusionMatrix(Trees, testx, testy);
-        
+        avgMetrics = calculateAvgMetrics(con_matricies{j});
+        acerr_per_fold(1, j) = 1 - avgMetrics.AvgClassificationRate;
         fold_start = fold_end+1;
     end
     

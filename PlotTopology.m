@@ -11,6 +11,9 @@ function [ fig ] = PlotTopology( trainFnc, a, b, c, x, y )
 % training data, as we have already optimised the parameters a, b, and c, 
 % we wont use validation. 
 
+%Set seed (all nets initialised the same)
+RandStream.setGlobalStream(RandStream('mt19937ar','seed',1));
+
 NUM_EPOCHS = 100;
 layers_range = [1,2,3];
 neurons_range = [10:10:90];
@@ -23,7 +26,7 @@ y1 = y(:, 1:split_ind);
 x2 = x(:, split_ind+1:num_examples);
 y2 = y(:, split_ind+1:num_examples);
 
-performace = zeros(size(layers_range, 2), size(neurons_range, 2));
+performance = zeros(size(layers_range, 2), size(neurons_range, 2));
 
 for l = layers_range
     n_counter = 1;
