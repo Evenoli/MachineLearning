@@ -65,25 +65,17 @@ for j = 1:CROSS_VALIDATION_NUM
     valy = train_valy(:, split_ind+1:num_train_examples);
     
     %topology ranges
-%     num_layers = [1,2,3];
-%     neurons_per_layer = [10:10:90];
-    num_layers = [2];
-    neurons_per_layer = [70];
+     num_layers = [1,2,3];
+     neurons_per_layer = [10:20:90];
 
     %Parameter ranges
-%     learningRate = [0.01:0.01:0.1];
-%     lr_increase = [1.05:0.05:1.2];
-%     lr_decrease =[0.6:0.1:0.9];
-%     momentum = [0.1:0.1:1];
-%     delt_increase = [1:0.1:1.5];
-%     delt_decrease =[0.3:0.1:0.9];
+     learningRate = [0.01:0.02:0.1];
+     lr_increase = [1.05:0.05:1.2];
+     lr_decrease =[0.6:0.2:0.9];
+     momentum = [0.1:0.2:1];
+     delt_increase = [1:0.25:1.5];
+     delt_decrease =[0.3:0.15:0.9];
 
-    learningRate = [0.1];
-    lr_increase = [1.05];
-    lr_decrease =[0.6];
-    momentum = [0.5];
-    delt_increase = [1];
-    delt_decrease =[0.9];
     
     optiParams = cell(1, 4);
     
