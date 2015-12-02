@@ -1,4 +1,4 @@
-function [ confusion_matrix, class_metrics, acr, optimal_params ] = PerformEsti( )
+function [ confusion_matrix, class_metrics, acr, optimal_params, acerr_per_fold ] = PerformEsti( )
 %Section VII
 
 load('cleandata_students');
@@ -12,6 +12,7 @@ N_EPOCHS = 100;
 
 con_matricies = cell(CROSS_VALIDATION_NUM, 1);
 optimal_params = cell(CROSS_VALIDATION_NUM, 1);
+acerr_per_fold = zeros(1, CROSS_VALIDATION_NUM);
 num_examples = size(x2, 2);
 base_fold_size = floor(num_examples/CROSS_VALIDATION_NUM);
 
@@ -138,7 +139,8 @@ for j = 1:CROSS_VALIDATION_NUM
     [ predictions ] = testANN( net, testx );
     labels = NNout2labels(testy);                    
     con_matricies{j} = confusionMatrixNN(predictions, labels);
-	
+    avgMetrics = calculateAvgMetrics(con_matricies{j});
+    acerr_per_fold(1, j) = 1 - avgMetrics.AvgClassificationRate;
     fold_start = fold_end+1;
 end
 
