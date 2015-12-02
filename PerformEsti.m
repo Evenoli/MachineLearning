@@ -1,4 +1,4 @@
-function [ confusion_matrix, class_metrics, acr ] = PerformEsti( )
+function [ confusion_matrix, class_metrics, acr, optimal_params ] = PerformEsti( )
 %Section VII
 
 load('cleandata_students');
@@ -11,6 +11,7 @@ CROSS_VALIDATION_NUM = 10;
 N_EPOCHS = 100;
 
 con_matricies = cell(CROSS_VALIDATION_NUM, 1);
+optimal_params = cell(CROSS_VALIDATION_NUM, 1);
 num_examples = size(x2, 2);
 base_fold_size = floor(num_examples/CROSS_VALIDATION_NUM);
 
@@ -108,6 +109,8 @@ for j = 1:CROSS_VALIDATION_NUM
             optiParam = optiParams{i};
         end
     end
+    
+    optimal_params{j} = optiParam;
     
     %Train net with optimal params
     top = [optiParam.layers, optiParam.neurons];
