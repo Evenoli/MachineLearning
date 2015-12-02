@@ -55,19 +55,20 @@ for j = 1:CROSS_VALIDATION_NUM
     end
 
     %Split train_valx into train and validation sets using 90/10% split
-    num_examples = size(train_valx, 2);
-    split_ind = floor(num_examples*0.9);
+    num_train_examples = size(train_valx, 2);
+
+    split_ind = floor(num_train_examples*0.9);
     trainx = train_valx(:, 1:split_ind);
     trainy = train_valy(:, 1:split_ind);
 
-    valx = train_valx(:, split_ind+1:num_examples);
-    valy = train_valy(:, split_ind+1:num_examples);
+    valx = train_valx(:, split_ind+1:num_train_examples);
+    valy = train_valy(:, split_ind+1:num_train_examples);
     
     %topology ranges
 %     num_layers = [1,2,3];
 %     neurons_per_layer = [10:10:90];
-    num_layers = [1];
-    neurons_per_layer = [10];
+    num_layers = [2];
+    neurons_per_layer = [70];
 
     %Parameter ranges
 %     learningRate = [0.01:0.01:0.1];
@@ -80,9 +81,9 @@ for j = 1:CROSS_VALIDATION_NUM
     learningRate = [0.1];
     lr_increase = [1.05];
     lr_decrease =[0.6];
-    momentum = [0.1];
+    momentum = [0.5];
     delt_increase = [1];
-    delt_decrease =[0.3];
+    delt_decrease =[0.9];
     
     optiParams = cell(1, 4);
     
@@ -109,8 +110,9 @@ for j = 1:CROSS_VALIDATION_NUM
     %Choose function with best performance
     bestPerf = 0;
     for i = 1:4
-        if(bestPerf < optiParams{i}.performance)
-            bestPerf = optiParams{i}.performance;
+        if(bestPerf < optiParams{i}.metrics.F1)
+            bestPerf = optiParams{i}.metrics.F1;
+            disp(optiParams{i}.metrics.F1);
             optiParam = optiParams{i};
         end
     end
@@ -139,8 +141,10 @@ for j = 1:CROSS_VALIDATION_NUM
     
     %Test with test fold!
     [ predictions ] = testANN( net, testx );
-    con_matricies{j} = confusionMatrixNN(predictions, testy);
+    labels = NNout2labels(testy);                    
+    con_matricies{j} = confusionMatrixNN(predictions, labels);
 	
+    fold_start = fold_end+1;
 end
 
 %Sum upp confusion matrices

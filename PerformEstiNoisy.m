@@ -11,13 +11,13 @@ CROSS_VALIDATION_NUM = 10;
 N_EPOCHS = 100;
 
 con_matricies = cell(CROSS_VALIDATION_NUM, 1);
-num_examples = size(x2, 2);
-base_fold_size = floor(num_examples/CROSS_VALIDATION_NUM);
+num_train_examples = size(x2, 2);
+base_fold_size = floor(num_train_examples/CROSS_VALIDATION_NUM);
 
 %Works out optimal fold sizes. Takes remainder after dividing number of
 %examples by fold size, and distributes extra examples evenly into
 %other folds.
-remainder = rem(num_examples, base_fold_size);
+remainder = rem(num_train_examples, base_fold_size);
 fold_sizes(1:10) = base_fold_size;
 i = 1;
 while(remainder > 0)
@@ -29,17 +29,17 @@ end
 fold_start = 1;
 for j = 1:CROSS_VALIDATION_NUM
     fold_end = fold_start + fold_sizes(j);
-    if(fold_end > num_examples);
-        fold_end = num_examples;
+    if(fold_end > num_train_examples);
+        fold_end = num_train_examples;
     end
 
     %train/test examples
     testx = x2(:, fold_start:fold_end);
-    trainx_2 = x2(:, fold_end+1:num_examples);
+    trainx_2 = x2(:, fold_end+1:num_train_examples);
 
     %train/test Labels
     testy = y2(:, fold_start:fold_end);
-    trainy_2 = y2(:, fold_end+1:num_examples);
+    trainy_2 = y2(:, fold_end+1:num_train_examples);
 
     if(j == 1);
         train_valx = trainx_2;
@@ -55,30 +55,32 @@ for j = 1:CROSS_VALIDATION_NUM
     end
 
     %Split train_valx into train and validation sets using 90/10% split
-    num_examples = size(train_valx, 2);
-    split_ind = floor(num_examples*0.9);
+    num_train_examples = size(train_valx, 2);
+    split_ind = floor(num_train_examples*0.9);
     trainx = train_valx(:, 1:split_ind);
     trainy = train_valy(:, 1:split_ind);
 
-    valx = train_valx(:, split_ind+1:num_examples);
-    valy = train_valy(:, split_ind+1:num_examples);
+    valx = train_valx(:, split_ind+1:num_train_examples);
+    valy = train_valy(:, split_ind+1:num_train_examples);
     
     %Train net with optimal params
     switch trainFnc
-        case 'GD'
+        case 'traingd'
             [ net, tr ] = traingdNet(top, trainx, trainy, param1, N_EPOCHS);
-        case 'GDA'
+        case 'traingda'
             [ net, tr ] = traingdaNet(top, trainx, trainy, param1, param2, param3, N_EPOCHS);
-        case 'GDM'
+        case 'traingdm'
             [ net, tr ] = traingdmNet(top, trainx, trainy, param1, param2, N_EPOCHS);
-        case 'RP'
+        case 'trainrp'
             [ net, tr ] = trainrpNet(top, trainx, trainy, param1, param2, N_EPOCHS);
     end
     
     %Test with test fold!
     [ predictions ] = testANN( net, testx );
-    con_matricies{j} = confusionMatrixNN(predictions, testy);
+    labels = NNout2labels(testy);                    
+    con_matricies{j} = confusionMatrixNN(predictions, labels);
 	
+    fold_start = fold_end+1;
 end
 
 %Sum upp confusion matrices

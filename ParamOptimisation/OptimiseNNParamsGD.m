@@ -14,7 +14,7 @@ function [ Results, opti_params ] = OptimiseNNParamsGD()
     load('cleandata_students');
     [x2, y2] = ANNdata(x, y);
 
-    CROSS_VALIDATION_NUM = 5;
+    CROSS_VALIDATION_NUM = 10;
     N_EPOCHS = 100;
     
     num_examples = size(x2, 2);
