@@ -1,4 +1,4 @@
-function [ confusion_matrix, class_metrics, acr ] = PerformEstiNoisy( top, trainFnc, param1, param2, param3 )
+function [ confusion_matrix, class_metrics, acr ] = PerformEstiNoisy( opti_params )
 %Section VII
 
 load('noisydata_students');
@@ -63,16 +63,23 @@ for j = 1:CROSS_VALIDATION_NUM
     valx = train_valx(:, split_ind+1:num_train_examples);
     valy = train_valy(:, split_ind+1:num_train_examples);
     
+    params = opti_params{j};
+    
     %Train net with optimal params
-    switch trainFnc
-        case 'traingd'
-            [ net, tr ] = traingdNet(top, trainx, trainy, param1, N_EPOCHS);
-        case 'traingda'
-            [ net, tr ] = traingdaNet(top, trainx, trainy, param1, param2, param3, N_EPOCHS);
-        case 'traingdm'
-            [ net, tr ] = traingdmNet(top, trainx, trainy, param1, param2, N_EPOCHS);
-        case 'trainrp'
-            [ net, tr ] = trainrpNet(top, trainx, trainy, param1, param2, N_EPOCHS);
+    switch params.training_func
+        case 'GD'
+            [ net, tr ] = traingdNet([opti_params.layers, opti_params.neurons], ...
+                                    trainx, trainy, opti_params.lRate, N_EPOCHS);
+        case 'GDA'
+            [ net, tr ] = traingdaNet([opti_params.layers, opti_params.neurons], ...
+                                    trainx, trainy, opti_params.lRate, opti_params.lr_inc,...
+                                    opti_params.lr_dec, N_EPOCHS);
+        case 'GDM'
+            [ net, tr ] = traingdmNet([opti_params.layers, opti_params.neurons], ...
+                                       trainx, trainy, opti_params.lRate, opti_params.momentum, N_EPOCHS);
+        case 'RP'
+            [ net, tr ] = trainrpNet([opti_params.layers, opti_params.neurons], ...
+                                trainx, trainy, opti_params.delt_inc, opti_params.delt_dec, N_EPOCHS);
     end
     
     %Test with test fold!
